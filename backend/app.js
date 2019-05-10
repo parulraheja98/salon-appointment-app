@@ -137,22 +137,90 @@ app.get('/testinghereapp' , (req,res) => {
     })
 })
 
+  
+
+app.post('/detailedinfo' , (req,res) => {
+    console.log('checking body 1');
+    console.log(req.body);
+    console.log('checking body 2'); 
+    var date = req.body.date;
+    var time = req.body.timeValOfAppointments;
+    Appointment.find({$and:[
+        {date},
+        {person:{$exists:0}}
+
+    ]}, (err,appoint) => {
+        console.log('checking appoint 0');
+        console.log(appoint);
+        console.log('checking appoint 1');
+        var timings = appoint[0].timings;
+        var details = '';
+        for(var timeInfo of timings) {
+            if(timeInfo.time == time) {
+                details = timeInfo;
+
+            }
+        }
+
+       if(details) {
+           res.status(200).json({
+               details
+           })
+       }
+
+       else {
+            res.status(500).json({
+                error:'No Detailed Info Found'
+            })
+
+       }
+
+    })
+
+
+
+
+})
+
+
 app.post('/searchAppointment' , (req,res) => {
     console.log('checking date 1');
-    console.log(req.body.date);
+    console.log(req.body);
     var dateAvail = new Date(req.body.date).toISOString().substring(0,10);
     console.log(dateAvail);
     console.log('checking date 2');
     if(req.body.date) {
-        Appointment.find({date:dateAvail, person:{$exists:0}} , (err,appoint) => {
-            res.json({
-                appoint
-            })
+        Appointment.find({$and:[{date:dateAvail}, {person:{$exists:0}},{timings: { 
+            $elemMatch: { typeAppoint: req.body.desc }}
+         }]} , (err,appoint) => {
+            if(appoint.length) {
+           var timingList = appoint[0].timings;
+           var listOfTimes = [];
+           for(var timeDesc of timingList) {
+                if(timeDesc.typeAppoint == req.body.desc) {
+                    listOfTimes.push(timeDesc.time);
+                }
+           }
+           console.log('checking list of times 1');
+           console.log(listOfTimes);
+           console.log('checking list of times 2');
+           res.json({
+               listOfTimes
+           })
+        }
+
+        else {
+        res.status(500).json({
+            error:'Timings Donot Exist'
+        })
+
+    }
+
         })
     }
     else {
         res.status(500).json({
-            completed:false
+            error:'Date Not Entered'
         })
     }
 })
@@ -171,11 +239,13 @@ app.post('/processAppointment' , (req,res) => {
     console.log(req.body);
     console.log('second check here '); 
     var timings = req.body.timeValOfAppointments;
+    
     var booked;
     var person;
     if(typeof timings === 'string') {
         timings = [timings];
     }
+   
     console.log(typeof timings[0]);
     console.log(timings);
     var date = req.body.date;
@@ -192,6 +262,7 @@ app.post('/processAppointment' , (req,res) => {
     }
 
     var createTimings = [];
+    
     for(var time of timings) {
         var checkTime = {
             time,
@@ -199,6 +270,31 @@ app.post('/processAppointment' , (req,res) => {
         }
         createTimings.push(checkTime);
     }  
+    
+    var typeDescription = req.body.typeDesc;
+        var priceDescription = req.body.priceDesc;
+        var createCheck = [];
+        if(typeof typeDescription == 'string') {
+            typeDescription = [typeDescription];
+        }
+        if(typeof priceDescription == 'number') {
+            console.log('shruti reaching here');
+            priceDescription = [priceDescription];
+        }
+        console.log(priceDescription);
+        for(var [i,appointDetails] of timings.entries()) {
+            var timingDetails = {
+                time:timings[i],
+                booked,
+                typeAppoint:typeDescription[i],
+                price:priceDescription[i]
+            }
+            createCheck.push(timingDetails);
+        }
+    
+     
+
+    
     console.log('checking create timings 1');
     console.log(createTimings);
     console.log('checking create timings 2');
@@ -221,7 +317,7 @@ app.post('/processAppointment' , (req,res) => {
                   }
                 console.log('check list second here');
                 if(!appointmentExists(timings[listOfTimings])) {
-                Appointment.update({$and:[{person},{date}]} , {$push:{timings:createTimings}} , {$new:true} , (err,updAppointment)  => {
+                Appointment.update({$and:[{person},{date}]} , {$push:{timings:createCheck}} , {$new:true} , (err,updAppointment)  => {
                     console.log(updAppointment);
                 })
                 Appointment.update({$and:[{date},{person:{$exists:0}}]}, { "$pull": { "timings": { "time": timings[listOfTimings] } }}, { safe: true, multi:true }, function(err, obj) {
@@ -235,11 +331,12 @@ app.post('/processAppointment' , (req,res) => {
             }
 
             else {
+
                 console.log('debugger test 2');
                 var appointment = new Appointment({
                     person,
                     date,
-                    timings:createTimings
+                    timings:createCheck
                 }).save();
                 for(var timeList of createTimings) {
                 Appointment.update({$and:[{date},{person:{$exists:0}}]}, { "$pull": { "timings": { "time": timeList.time } }}, { safe: true, multi:true }, function(err, obj) {
@@ -254,6 +351,7 @@ app.post('/processAppointment' , (req,res) => {
         
     }
     else {
+        
         var indStore = [];
         Appointment.find({$and:[{person:{$exists:0}},{date}]} , (err,appoint) => {
             if(appoint.length > 0) {
@@ -284,12 +382,16 @@ app.post('/processAppointment' , (req,res) => {
                 if(!(i in indStore)) {
                     console.log('time slot check here 1');
                     console.log(timeSlots);
+                    console.log(typeDescription);
+                    console.log(i);
                     console.log('time slot check here 2');  
-                    var checktime = {
+                    var updTimings = {
                         time:timeSlots,
+                        typeAppoint:typeDescription[i],
+                        price:priceDescription[i],
                         booked:false
                     }
-                    Appointment.update({$and:[{person:{$exists:0}},{date}]} , {$push:{timings:checkTime}} , {$new:true} , (err,updAppointment)  => {
+                    Appointment.update({$and:[{person:{$exists:0}},{date}]} , {$push:{timings:updTimings}} , {$new:true} , (err,updAppointment)  => {
                         console.log(updAppointment);
                     })
     
@@ -301,7 +403,7 @@ app.post('/processAppointment' , (req,res) => {
         else {
             var appointment = new Appointment({
                 date,
-                timings:createTimings
+                timings:createCheck
             }).save();
     
         }
@@ -317,7 +419,7 @@ app.post('/processAppointment' , (req,res) => {
     }
     else {
         res.status(500).json({
-            message:'Appointment not Added '
+            error:'Appointment Not Added '
         })
     }
 

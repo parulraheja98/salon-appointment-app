@@ -4,6 +4,8 @@ var appointmentSchema=mongoose.Schema({
     person:String,
     timings:[{
         time:String,
+        typeAppoint:String,
+        price:Number,
         booked:Boolean
     }]
 
