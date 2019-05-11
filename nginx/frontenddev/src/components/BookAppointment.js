@@ -3,7 +3,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import {withCookies,Cookies} from 'react-cookie';
-import {Form,Button,Dropdown,DropdownButton} from 'react-bootstrap';
+import {Form,Button,Dropdown,DropdownButton,Alert} from 'react-bootstrap';
 
 
 class BookAppointment extends Component {
@@ -108,7 +108,11 @@ class BookAppointment extends Component {
                         <>
                         <Button onClick={(event) => this.handleBooking(event,timings)}> {timings} </Button> {" "}
                         </>
-                    )) : null
+                    )) : 
+                    <>
+                    <br />
+                    <Alert variant='danger'> Sorry No Appointments available at this time </Alert>
+                    </>
                 }
 
             </Form>

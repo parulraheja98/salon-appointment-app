@@ -472,9 +472,56 @@ Will depend on the layout of the design IF we want the post request or get reque
 //app.post('/validatetoken',authenticationController.validatetoken);
 
 
+app.get('/userinfo' , (req,res) => {
+    Appointment.find({person:req.session.username}, (err,appoint) => {
+    
+        res.json({
+            details:appoint
+        })
+
+    })
+
+})
+
+app.post('/delAppointment' , (req,res) => {
+    var date = req.body.date;
+    var time = req.body.timingDetail.time;
+    var price = req.body.timingDetail.price;
+    var typeAppoint = req.body.timingDetail.typeAppoint;
+    var person = req.session.username;
+   var firstQuer = Appointment.update({$and:[{date},{person}]}, { "$pull": { "timings": { time} }}, { safe: true, multi:true })
+    var updTimings = {
+        time,
+        typeAppoint,
+        price,
+        booked:false
+    }
+    
+
+    var secondQuer = Appointment.update({$and:[{date},{person:{$exists:0}}]},{$push:{timings:updTimings}}, { safe: true, multi:true });
+
+    Promise.all([firstQuer,secondQuer])
+    .then(re => {
+        console.log('checking re 1');
+        console.log(re);
+        console.log('checking re 2');
+        if(re[0].n && re[1].n) {
+            res.status(200).json({
+                message:'Appointment deleted successfully'
+            })
+        }
+
+        else {
+            res.status(500).json({
+                error:"Update Unsuccessfull"
+            })
+        }
 
 
+    })
 
+
+})
 
 
 app.post('/processLogin1',authenticationController.processLogin);
