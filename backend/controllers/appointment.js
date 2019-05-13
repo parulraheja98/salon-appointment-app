@@ -1,4 +1,4 @@
-var Appoinment = require('../models/appointment.js');
+var Appointment = require('../models/appointment.js');
 
 
 var searchAppointment = (req,res,next) => {
@@ -69,6 +69,7 @@ var detailedinfo = (req,res,next) => {
        }
 
     })
+}
 
     var processAppointment = (req,res,next) => {
         console.log('first check here ');
@@ -244,7 +245,7 @@ var detailedinfo = (req,res,next) => {
     }
 
 
-}
+
 
 var userinfo = (req,res,next) => {
 
@@ -314,6 +315,7 @@ module.exports = {
     delAppointment,
     userinfo,
     detailedinfo,
-    searchAppointment
+    searchAppointment,
+    processAppointment
 
 }
