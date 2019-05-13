@@ -2,7 +2,6 @@ var Member = require('../models/member.js');
 var md5 = require('md5');
 
 var processLogin = (req,res,next) => {
-
     checkLogin(req, res, req.body.uname.trim(), req.body.pword.trim())
 }
 
