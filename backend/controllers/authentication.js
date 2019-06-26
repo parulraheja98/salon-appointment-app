@@ -12,12 +12,10 @@ var checkLogin = (req, res, uname, password, next) => {
     }, function(err, userdata) {
 
         if (!userdata) {
-            console.log('debugger 1');
             res.status(404).send({
                 error: " User not found"
             });
         } else if (userdata.password == md5(password)) {
-            console.log('debugger 2');
             req.session.username = userdata.username;
             res.status(200).json({
                 authorized: true,
@@ -25,7 +23,6 @@ var checkLogin = (req, res, uname, password, next) => {
             });
 
         } else {
-            console.log('debugger 3');
             res.status(401).json({
                 authorized: false
             });
@@ -43,9 +40,6 @@ var processReg = (req,res,next) => {
         username: req.body.uname
     })
     .then((mem) => {
-        console.log('testing member here first');
-        console.log(mem);
-        console.log('testing member here second');
         if (mem.length) {
             res.status(401).send({
                 authorized: false,

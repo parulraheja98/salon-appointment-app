@@ -72,9 +72,6 @@ var detailedinfo = (req,res,next) => {
 }
 
     var processAppointment = (req,res,next) => {
-        console.log('first check here ');
-    console.log(req.body);
-    console.log('second check here '); 
     var timings = req.body.timeValOfAppointments;
     
     var booked;
@@ -82,13 +79,7 @@ var detailedinfo = (req,res,next) => {
     if(typeof timings === 'string') {
         timings = [timings];
     }
-   
-    console.log(typeof timings[0]);
-    console.log(timings);
-    var date = req.body.date;
-    console.log('checking date value here 1');
-    console.log(date);
-    console.log('checking date value here 2');    
+    var date = req.body.date;  
     if(req.body.person) {
         person = req.body.person;
         booked = true;
@@ -115,10 +106,8 @@ var detailedinfo = (req,res,next) => {
             typeDescription = [typeDescription];
         }
         if(typeof priceDescription == 'number') {
-            console.log('shruti reaching here');
             priceDescription = [priceDescription];
         }
-        console.log(priceDescription);
         for(var [i,appointDetails] of timings.entries()) {
             var timingDetails = {
                 time:timings[i],
@@ -129,36 +118,20 @@ var detailedinfo = (req,res,next) => {
             createCheck.push(timingDetails);
         }
     
-     
-
-    
-    console.log('checking create timings 1');
-    console.log(createTimings);
-    console.log('checking create timings 2');
     if(person) {
-        console.log('checking value of person 1');
-        console.log(person);
-        console.log('checking value of person 2');
-
         Appointment.find({$and:[{date},{person}]}, (err,appoint) => {
-            console.log('debugger test 1');
             if(appoint.length) {
                 for(listOfTimings in timings) {
-                console.log('check list first');
-                console.log(listOfTimings);
-                console.log(appoint[0].timings);
                 function appointmentExists(timings) {
                     return appoint[0].timings.some(function(el) {
                       return el.time === timings;
                     }); 
                   }
-                console.log('check list second here');
                 if(!appointmentExists(timings[listOfTimings])) {
                 Appointment.update({$and:[{person},{date}]} , {$push:{timings:createCheck}} , {$new:true} , (err,updAppointment)  => {
                     console.log(updAppointment);
                 })
                 Appointment.update({$and:[{date},{person:{$exists:0}}]}, { "$pull": { "timings": { "time": timings[listOfTimings] } }}, { safe: true, multi:true }, function(err, obj) {
-                    console.log(obj);
                 });
             }
 
@@ -194,9 +167,7 @@ var detailedinfo = (req,res,next) => {
             var timingSlots = appoint[0].timings;
             for(var [i,timeSlots] of timingSlots.entries()) {
                 for(var [indTime,j] of timings.entries()) {
-                    console.log(j);
                     if(j == timeSlots.time){
-                        console.log('debugging test');
                         indStore.push(indTime);
                     }
                 }
