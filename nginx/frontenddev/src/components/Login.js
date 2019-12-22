@@ -71,7 +71,6 @@ componentDidMount() {
 
 componentDidUpdate(prevProps, prevState) {
     const {cookies} = this.props;
-    console.log('testing check here ');
     console.log(prevState);
     console.log(cookies.get('loginCredentials'));
     console.log('crucial testing complete');
