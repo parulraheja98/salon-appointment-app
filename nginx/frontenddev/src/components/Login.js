@@ -71,13 +71,8 @@ componentDidMount() {
 
 componentDidUpdate(prevProps, prevState) {
     const {cookies} = this.props;
-    console.log('testing check here ');
-    console.log(prevState);
-    console.log(cookies.get('loginCredentials'));
-    console.log('crucial testing complete');
     var loginCheck = prevProps.cookies.cookies.loginCredentials;
     if(prevState.loggedIn && cookies.get('loginCredentials') == undefined) {
-        console.log('it is working ');
         this.setState({loggedIn:false});   
     }
 
