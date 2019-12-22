@@ -34,9 +34,6 @@ body:JSON.stringify({
 })
 .then(response => response.json()) 
 .then(data => {
-console.log('test completed');
-console.log(data);
-console.log('test completed 1');
 if(data.authorized) {
     this.setState({invalidLogin:false});
     cookies.set('loginCredentials',data.username,{path:'/'});
