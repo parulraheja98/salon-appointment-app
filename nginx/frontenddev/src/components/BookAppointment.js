@@ -25,17 +25,11 @@ class BookAppointment extends Component {
 
     handleDesc(event) {
        
-        console.log('checking here 1');
-        console.log(event.target.value);
-        console.log('checking here 2');
         this.setState({desc:event.target.value});
 
     }
 
     handleSubmit() {
-        console.log('date check 1');
-        console.log(this.state);
-        console.log('date check 2');
         fetch('http://localhost:3017/searchAppointment' ,{
             method:'POST',
             credentials:'include',
@@ -47,12 +41,8 @@ class BookAppointment extends Component {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             if(data.listOfTimes) {
-            console.log('checking data 1');
-            console.log(data);
             this.setState({availTimings:data.listOfTimes})
-            console.log('checking data 2');
             }
             else {
                 this.setState({availTimings:false});
@@ -61,18 +51,11 @@ class BookAppointment extends Component {
     }
 
     handleDateChange(date) {
-        console.log('checking date 1');
-        console.log(date);
         this.setState({selDate:date});
-        console.log('checking date 2');
     }
 
     handleBooking(event,time) {
         const {cookies} = this.props;
-        console.log('checking time 1');
-        console.log(time);
-        console.log(this.state);
-        console.log('checking time 2');
         this.props.history.push('/appointmentinfo' ,{
             appointmentInfo:{
                 timeValOfAppointments:time,
