@@ -23,7 +23,7 @@
     "md5": "^2.2.1",
     "mocha": "^6.1.4",
     "moment": "^2.24.0",
-    "mongoose": "^5.5.3",
+    "mongoose": "^5.7.5",
     "nodemailer": "^5.1.1",
     "nodemon": "^1.18.11",
     "react-router": "^5.0.0",
